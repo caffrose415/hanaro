@@ -3,6 +3,7 @@ HELP.md
 build/
 logs/
 mysql/
+src/main/resources/makefor/
 docker-compose.yml
 scr/main/generated
 !gradle/wrapper/gradle-wrapper.jar

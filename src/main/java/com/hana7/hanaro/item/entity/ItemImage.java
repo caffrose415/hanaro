@@ -1,6 +1,10 @@
 package com.hana7.hanaro.item.entity;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,9 +29,10 @@ public class ItemImage {
 
 	private String imgUrl;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "item",
 		foreignKey = @ForeignKey(name="fk_ItemImage_Item"))
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Item item;
 
 }
