@@ -1,6 +1,11 @@
 package com.hana7.hanaro.member.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.hana7.hanaro.BaseEntity;
+import com.hana7.hanaro.cart.entity.Cart;
+import com.hana7.hanaro.order.entity.Order;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,4 +36,11 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Auth auth;
+
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    private Cart cart;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @Builder.Default
+    private List<Order> orders = new ArrayList<>();
 }

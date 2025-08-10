@@ -11,7 +11,6 @@ import com.hana7.hanaro.order.entity.OrderItem;
 import com.hana7.hanaro.order.entity.OrderState;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
