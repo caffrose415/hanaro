@@ -3,6 +3,7 @@ package com.hana7.hanaro.item.service;
 import static java.time.LocalDateTime.*;
 
 import com.hana7.hanaro.item.dto.ItemCreateRequestDTO;
+import com.hana7.hanaro.item.dto.ItemSearchResponseDTO;
 import com.hana7.hanaro.item.dto.ItemUpdateRequestDTO;
 import com.hana7.hanaro.item.entity.Item;
 import com.hana7.hanaro.item.entity.ItemImage;
@@ -118,20 +119,31 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item getItemById(Long id) {
-        return itemRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+        return itemRepository.findByIdAndDeleteAtIsNull(id)
+            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+    }
+
+    @Override
+    public List<ItemSearchResponseDTO> searchItemsByName(String name) {
+        List<Item> items = (name == null || name.isBlank())
+            ? itemRepository.findAllByDeleteAtIsNull()
+            : itemRepository.findByDeleteAtIsNullAndNameContainingIgnoreCase(name);
+
+        return items.stream()
+            .map(ItemSearchResponseDTO::from)
+            .toList();
     }
 
     @Override
     public List<Item> getAllItems() {
-        return itemRepository.findAll();
+        return itemRepository.findAllByDeleteAtIsNull();
     }
 
     @Override
     @Transactional
-    public Item updateItem(ItemUpdateRequestDTO requestDTO) {
-        Item item = itemRepository.findById(requestDTO.id())
-                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+    public Item updateItem(ItemUpdateRequestDTO requestDTO,long id) {
+        Item item = itemRepository.findByIdAndDeleteAtIsNull(id)
+            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
 
         item.setName(requestDTO.name());
         item.setPrice(requestDTO.price());
@@ -152,7 +164,8 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public void deleteImage(Long itemId, Long imageId) {
-        Item item = getItemById(itemId);
+        Item item = itemRepository.findByIdAndDeleteAtIsNull(itemId)
+            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
         ItemImage img = itemImageRepository.findById(imageId)
             .orElseThrow(() -> new IllegalArgumentException("이미지를 찾을 수 없습니다."));
         if (!img.getItem().getId().equals(item.getId())) {
@@ -164,11 +177,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public Item adjustStock(Long id, int cnt) {
-        Item item = itemRepository.findById(id)
+        Item item = itemRepository.findByIdAndDeleteAtIsNull(id)
             .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
-        int next = item.getStock() + cnt;
-        if (next < 0) throw new IllegalArgumentException("재고는 음수가 될 수 없습니다.");
-        item.setStock(next);
+        if (cnt < 0) throw new IllegalArgumentException("재고는 음수가 될 수 없습니다.");
+        item.setStock(cnt);
         return item;
     }
 }

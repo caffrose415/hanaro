@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 public record StockAdjustRequestDTO(
 	@NotNull
-	@Schema(name="quentity", example = "10")
+	@Schema(name="cnt", example = "10")
 	int cnt
 ) {}

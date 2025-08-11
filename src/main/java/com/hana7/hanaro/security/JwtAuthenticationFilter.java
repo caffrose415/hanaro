@@ -24,9 +24,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private final String[] excludePatterns = {
-            "/api/subscriber/login",
             "/api/member/signin",
             "/api/member/signup",
+            "/user/items/**",
             "/api/public/**",
             "/actuator/**",
             "/swagger-ui/**",

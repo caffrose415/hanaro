@@ -9,4 +9,8 @@ import java.util.Optional;
 
 public interface ItemRepository extends JpaRepository<Item,Long> {
 	Optional<Item> findByIdAndDeleteAtIsNull(Long id);
+	List<Item> findAllByDeleteAtIsNull();
+	boolean existsByIdAndDeleteAtIsNull(Long id);
+	List<Item> findByDeleteAtIsNullAndNameContainingIgnoreCase(String name);
+
 }

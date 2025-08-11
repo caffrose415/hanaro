@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 public record ItemUpdateRequestDTO (
-    long id,
 
     @NotBlank(message = "상품명은 필수입니다.")
     @Schema(name="name", example = "updateItem")

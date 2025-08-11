@@ -4,12 +4,9 @@ import com.hana7.hanaro.item.dto.ItemCreateRequestDTO;
 import com.hana7.hanaro.item.dto.ItemUpdateRequestDTO;
 import com.hana7.hanaro.item.dto.StockAdjustRequestDTO;
 import com.hana7.hanaro.item.entity.Item;
-import com.hana7.hanaro.item.entity.ItemImage;
 import com.hana7.hanaro.item.service.ItemService;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,11 +22,12 @@ import java.util.List;
 @Tag(name="관리자 상품관련")
 @RequestMapping("/admin/items")
 @RequiredArgsConstructor
-public class ItemController {
+public class ItemAdminController {
 
     private final ItemService itemService;
 
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "아이템 등록")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Item> createItem(@Valid ItemCreateRequestDTO requestDTO) {
         Item created = itemService.createItemWithImages(requestDTO);
@@ -52,9 +49,9 @@ public class ItemController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping
-    public ResponseEntity<Item> updateItem(@Valid @RequestBody ItemUpdateRequestDTO requestDTO) {
-        Item updatedItem = itemService.updateItem(requestDTO);
+    @PutMapping("/{id}")
+    public ResponseEntity<Item> updateItem(@Valid @RequestBody ItemUpdateRequestDTO requestDTO,@PathVariable Long id) {
+        Item updatedItem = itemService.updateItem(requestDTO,id);
         return ResponseEntity.ok(updatedItem);
     }
 
