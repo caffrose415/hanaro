@@ -5,6 +5,7 @@ import com.hana7.hanaro.member.dto.SignupRequestDTO;
 import com.hana7.hanaro.member.service.MemberService;
 import com.hana7.hanaro.security.JwtUtil;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name="로그인 및 회원가입")
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class MemberController {
     private final AuthenticationManager authenicationManager;
 
     @PostMapping("/signin")
-    @Tag(name="로그인")
+    @Operation(summary = "로그인")
     public ResponseEntity<?> signin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
         try {
             Authentication authenticate = authenicationManager.authenticate(
@@ -44,7 +46,7 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
-    @Tag(name="회원가입")
+    @Operation(summary = "회원가입")
     public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequestDTO signupRequestDto) {
         memberService.signup(signupRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();

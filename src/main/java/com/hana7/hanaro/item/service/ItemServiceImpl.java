@@ -3,6 +3,7 @@ package com.hana7.hanaro.item.service;
 import static java.time.LocalDateTime.*;
 
 import com.hana7.hanaro.item.dto.ItemCreateRequestDTO;
+import com.hana7.hanaro.item.dto.ItemCreateResponseDTO;
 import com.hana7.hanaro.item.dto.ItemSearchResponseDTO;
 import com.hana7.hanaro.item.dto.ItemUpdateRequestDTO;
 import com.hana7.hanaro.item.entity.Item;
@@ -43,7 +44,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public Item createItemWithImages(ItemCreateRequestDTO requestDTO) {
+    public ItemCreateResponseDTO createItemWithImages(ItemCreateRequestDTO requestDTO) {
 
         Item item = itemRepository.save(Item.builder()
             .name(requestDTO.name())
@@ -54,7 +55,7 @@ public class ItemServiceImpl implements ItemService {
 
         List<MultipartFile> files = requestDTO.files();
         if (files == null || files.isEmpty()) {
-            return item;
+            return ItemCreateResponseDTO.fromCreate(item);
         }
 
         long total = 0L;
@@ -114,7 +115,7 @@ public class ItemServiceImpl implements ItemService {
             item.getItemImages().add(img);
         }
 
-        return item;
+        return ItemCreateResponseDTO.fromCreate(item);
     }
 
     @Override

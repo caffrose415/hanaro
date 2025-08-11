@@ -1,6 +1,7 @@
 SET time_zone = 'Asia/Seoul';
 
 INSERT INTO member (email, password, nickname, auth, createdAt, updatedAt) VALUES ('hanaro', '$2a$10$gdvGsh/6zhBXMJ.QHBotLek/pwP9hY8OqhGgJh.3hHIgGHrvUsbeq', 'hanaro', 'ADMIN', NOW(), NOW());
+INSERT INTO member (email, password, nickname, auth, createdAt, updatedAt) VALUES ('test@gmail.com', '$2a$10$gdvGsh/6zhBXMJ.QHBotLek/pwP9hY8OqhGgJh.3hHIgGHrvUsbeq', 'tester', 'USERS', NOW(), NOW());
 
 INSERT INTO `item` (`name`, `price`, `stock`) VALUES
                                                   ('테스트상품 01',  9900,  10),

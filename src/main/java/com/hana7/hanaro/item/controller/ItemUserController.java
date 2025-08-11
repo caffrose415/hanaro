@@ -7,6 +7,7 @@ import com.hana7.hanaro.item.dto.StockAdjustRequestDTO;
 import com.hana7.hanaro.item.entity.Item;
 import com.hana7.hanaro.item.service.ItemService;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(name="사용자 상품관련")
+@Tag(name="[사용자] 상품")
 @RequestMapping("/user/items")
 @RequiredArgsConstructor
 public class ItemUserController {
@@ -27,18 +28,21 @@ public class ItemUserController {
 	private final ItemService itemService;
 
 	@GetMapping("/{id}")
+	@Operation(summary = "아이템 아이디로 검색")
 	public ResponseEntity<Item> getItemById(@PathVariable Long id) {
 		Item item = itemService.getItemById(id);
 		return ResponseEntity.ok(item);
 	}
 
 	@GetMapping
+	@Operation(summary = "아이템 전체 검색")
 	public ResponseEntity<List<Item>> getAllItems() {
 		List<Item> items = itemService.getAllItems();
 		return ResponseEntity.ok(items);
 	}
 
 	@GetMapping("/search")
+	@Operation(summary = "아이템 검색")
 	public ResponseEntity<List<ItemSearchResponseDTO>> search(@RequestParam("name") String name) {
 		return ResponseEntity.ok(itemService.searchItemsByName(name));
 	}
