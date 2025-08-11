@@ -13,13 +13,11 @@ public record ItemUpdateRequestDTO (
     @Schema(name="name", example = "updateItem")
     String name,
 
-    @Min(value = 0, message = "가격은 0 이상이어야 합니다.")
-    @NotBlank(message = "가격을 입력해주세요")
+    @Min(value = 1, message = "가격은 1 이상이어야 합니다.")
     @Schema(name="price", example = "10000")
     int price,
 
-    @Min(value = 0, message = "재고는 0 이상이어야 합니다.")
-    @NotBlank(message="재고를 입력해주세요")
+    @Min(value = 1, message = "재고는 1 이상이어야 합니다.")
     @Schema(name="stock", example = "10")
     int stock
 ){}

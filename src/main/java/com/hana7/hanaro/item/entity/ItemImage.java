@@ -3,6 +3,8 @@ package com.hana7.hanaro.item.entity;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
@@ -30,6 +32,7 @@ public class ItemImage {
 	private String imgUrl;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JsonIgnore
 	@JoinColumn(name = "item",
 		foreignKey = @ForeignKey(name="fk_ItemImage_Item"))
 	@OnDelete(action = OnDeleteAction.CASCADE)

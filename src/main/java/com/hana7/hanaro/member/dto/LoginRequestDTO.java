@@ -6,10 +6,10 @@ import jakarta.validation.constraints.NotBlank;
 
 public record LoginRequestDTO (
     @NotBlank(message = "이메일을 입력해주세요")
-    @Schema(name = "email", example = "test@Gmail.com")
+    @Schema(name = "email", example = "hanaro")
     String email,
 
     @NotBlank(message = "비밀번호를 입력해주세요")
-    @Schema(name="password", example = "test123")
+    @Schema(name="password", example = "12345678")
     String password
 ){}

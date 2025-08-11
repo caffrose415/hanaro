@@ -30,7 +30,7 @@ public class MemberController {
 
     @PostMapping("/signin")
     @Tag(name="로그인")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
+    public ResponseEntity<?> signin(@Valid @RequestBody LoginRequestDTO loginRequestDTO) {
         try {
             Authentication authenticate = authenicationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -44,6 +44,7 @@ public class MemberController {
     }
 
     @PostMapping("/signup")
+    @Tag(name="회원가입")
     public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequestDTO signupRequestDto) {
         memberService.signup(signupRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();

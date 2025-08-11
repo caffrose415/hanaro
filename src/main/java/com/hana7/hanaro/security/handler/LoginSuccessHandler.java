@@ -1,7 +1,6 @@
 package com.hana7.hanaro.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana7.hanaro.member.dto.UserDto;
 import com.hana7.hanaro.security.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +10,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -21,7 +19,6 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         Authentication authentication) throws IOException, ServletException {
 
         Map<String, Object> claims = JwtUtil.authenticationToClaim(authentication);
-
         ObjectMapper objectMapper = new ObjectMapper();
         response.setContentType("application/json; charset=UTF-8");
         PrintWriter out = response.getWriter();

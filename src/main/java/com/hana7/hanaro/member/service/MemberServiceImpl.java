@@ -20,24 +20,6 @@ public class MemberServiceImpl implements MemberService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public String login(LoginRequestDTO loginRequestDTO) {
-        Member member = memberRepository.findByEmail(loginRequestDTO.email())
-                .orElseThrow(() -> new IllegalArgumentException("가입되지 않은 E-MAIL 입니다."));
-
-        if (!passwordEncoder.matches(loginRequestDTO.password(), member.getPassword())) {
-            throw new IllegalArgumentException("잘못된 비밀번호입니다.");
-        }
-
-        Map<String, Object> claims = Map.of(
-                "email", member.getEmail(),
-                "nickname", member.getNickname(),
-                "roleNames", member.getAuth().name()
-        );
-
-        return JwtUtil.generateToken(claims, 30);
-    }
-
-    @Override
     public void signup(SignupRequestDTO signupRequestDTO) {
         if (memberRepository.existsByEmail(signupRequestDTO.email())) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");

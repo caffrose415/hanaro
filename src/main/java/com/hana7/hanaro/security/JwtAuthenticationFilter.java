@@ -1,7 +1,7 @@
 package com.hana7.hanaro.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hana7.hanaro.member.dto.UserDto;
+import com.hana7.hanaro.member.dto.UserDTO;
 import com.hana7.hanaro.member.entity.Auth;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Collections;
+
 import java.util.Map;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -53,20 +52,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String email = (String)claims.get("email");
             String nickname = (String)claims.get("nickname");
-            String roleName = (String) claims.get("roleNames");
+            String roleName = (String) claims.get("auth");
+
 
             Auth auth = Auth.valueOf(roleName);
 
-            UserDto userDTO = new UserDto(
+            UserDTO userDTO = new UserDTO(
                 email, "",
-                Collections.singletonList(new SimpleGrantedAuthority(auth.name())),
                 nickname, auth
             );
 
             UsernamePasswordAuthenticationToken authenticationToken = new
                 UsernamePasswordAuthenticationToken(userDTO, null, userDTO.getAuthorities());
 
-            // 올바른 Authorization을 저장하여 어디서든 불러올 수 있다!
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         } catch (Exception e) {
             e.printStackTrace(System.out);
