@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 
 import com.hana7.hanaro.order.dto.AdminOrderDetailDTO;
 import com.hana7.hanaro.order.dto.AdminOrderSummaryDTO;
+import com.hana7.hanaro.order.dto.MyOrderSummaryDTO;
 import com.hana7.hanaro.order.dto.OrderResponseDTO;
 
 public interface OrderService {
@@ -18,4 +19,6 @@ public interface OrderService {
 		Long itemId, Long memberId, String memberEmail
 	);
 	AdminOrderDetailDTO detail(Long orderId);
+	List<MyOrderSummaryDTO> list(Authentication auth, LocalDate startDate, LocalDate endDate);
+	OrderResponseDTO detail(Authentication auth, Long orderId);
 }

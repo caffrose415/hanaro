@@ -1,5 +1,6 @@
 package com.hana7.hanaro.member.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.hana7.hanaro.member.entity.Member;
@@ -10,4 +11,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Member findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    Optional<Member> findByEmailAndDeleteAtIsNull(String email);
+
+    // 관리자 조회용
+    List<Member> findByDeleteAtIsNull();
+    Optional<Member> findByIdAndDeleteAtIsNull(Long id);
 }

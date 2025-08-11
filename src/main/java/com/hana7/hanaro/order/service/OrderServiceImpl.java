@@ -14,6 +14,7 @@ import com.hana7.hanaro.member.entity.Member;
 import com.hana7.hanaro.member.repository.MemberRepository;
 import com.hana7.hanaro.order.dto.AdminOrderDetailDTO;
 import com.hana7.hanaro.order.dto.AdminOrderSummaryDTO;
+import com.hana7.hanaro.order.dto.MyOrderSummaryDTO;
 import com.hana7.hanaro.order.dto.OrderResponseDTO;
 import com.hana7.hanaro.order.entity.Order;
 import com.hana7.hanaro.order.entity.OrderItem;
@@ -87,10 +88,14 @@ public class OrderServiceImpl implements OrderService {
 
 		// 저장 (cascade = ALL이므로 order만 save해도 orderItems 저장됨)
 		order = orderRepository.save(order);
+		order.setStatedAt(LocalDateTime.now());
+
 
 		// 장바구니 비우기 (내 카트만)
-		cartItemRepository.deleteByCartId(cart.getId());
-		cart.getCartItems().clear();
+		// cartItemRepository.deleteByCartId(cart.getId());
+		// cart.getCartItems().clear();
+		cartRepository.deleteById(cart.getId());
+		// cart.setDeleteAt(java.time.LocalDateTime.now());
 
 		return OrderResponseDTO.from(order);
 	}
@@ -117,6 +122,30 @@ public class OrderServiceImpl implements OrderService {
 		var order = orderRepository.findDetailById(orderId)
 			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 		return AdminOrderDetailDTO.from(order);
+	}
+
+	@Override
+	public List<MyOrderSummaryDTO> list(Authentication auth, LocalDate startDate, LocalDate endDate) {
+		Member me = resolveMember(auth);
+
+		List<Order> orders;
+		if (startDate == null && endDate == null) {
+			orders = orderRepository.findByMemberIdOrderByCreatedAtDesc(me.getId());
+		} else {
+			LocalDateTime start = (startDate == null) ? LocalDate.MIN.atStartOfDay() : startDate.atStartOfDay();
+			LocalDateTime end   = (endDate == null)   ? LocalDate.MAX.atStartOfDay() : endDate.plusDays(1).atStartOfDay();
+			orders = orderRepository.findByMemberIdAndCreatedAtBetweenOrderByCreatedAtDesc(me.getId(), start, end);
+		}
+
+		return orders.stream().map(MyOrderSummaryDTO::from).toList();
+	}
+
+	@Override
+	public OrderResponseDTO detail(Authentication auth, Long orderId) {
+		Member me = resolveMember(auth);
+		Order order = orderRepository.findByIdAndMemberId(orderId, me.getId())
+			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없거나 권한이 없습니다."));
+		return OrderResponseDTO.from(order);
 	}
 
 }

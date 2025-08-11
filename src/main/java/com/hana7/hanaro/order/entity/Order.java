@@ -36,6 +36,9 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private OrderState state;
 
+    @Column(columnDefinition = "DATETIME(0)")
+    private java.time.LocalDateTime statedAt;
+
     @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL)
     @Builder.Default
     private List<OrderItem> orderItems = new ArrayList<>();
