@@ -1,9 +1,10 @@
 package com.hana7.hanaro.member.service;
 
-import com.hana7.hanaro.member.dto.LoginRequestDto;
-import com.hana7.hanaro.member.dto.SignupRequestDto;
+import com.hana7.hanaro.member.dto.LoginRequestDTO;
+import com.hana7.hanaro.member.dto.SignupRequestDTO;
 
 public interface MemberService {
-    void signup(SignupRequestDto signupRequestDto);
-    String login(LoginRequestDto loginRequestDto);
+    String login(LoginRequestDTO loginRequestDTO);
+
+    void signup(SignupRequestDTO signupRequestDTO);
 }

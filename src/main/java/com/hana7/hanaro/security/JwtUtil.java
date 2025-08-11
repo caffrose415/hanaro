@@ -7,6 +7,9 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.security.core.Authentication;
+
+import com.hana7.hanaro.member.dto.UserDto;
 import com.hana7.hanaro.security.exception.CustomJwtException;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -56,5 +59,19 @@ public class JwtUtil {
 		}
 
 		return claim;
+	}
+
+	public static Map<String,Object> authenticationToClaim(Authentication authentication) {
+		UserDto userDto = (UserDto) authentication.getPrincipal();
+
+		Map<String, Object> claims = Map.of(
+			"email", userDto.getEmail(),
+			"nickname", userDto.getNickname(),
+			"roleNames", userDto.getAuth().name()
+		);
+
+		String accessToken = JwtUtil.generateToken(claims, 10);
+		String refreshToken = JwtUtil.generateToken(claims, 60 * 24);
+		return claims;
 	}
 }

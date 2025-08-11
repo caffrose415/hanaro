@@ -1,36 +1,57 @@
 package com.hana7.hanaro.item.controller;
 
+import com.hana7.hanaro.item.dto.ItemCreateRequestDTO;
+import com.hana7.hanaro.item.dto.ItemUpdateRequestDTO;
 import com.hana7.hanaro.item.entity.Item;
 import com.hana7.hanaro.item.service.ItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/items")
+@RequestMapping("/api/items")
 @RequiredArgsConstructor
 public class ItemController {
 
     private final ItemService itemService;
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    public ResponseEntity<Item> createItem(@Valid @RequestBody ItemCreateRequestDTO requestDTO) {
+        Item createdItem = itemService.createItem(requestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdItem);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{id}")
+    public ResponseEntity<Item> getItemById(@PathVariable Long id) {
+        Item item = itemService.getItemById(id);
+        return ResponseEntity.ok(item);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<Item>> getItems(@RequestParam(required = false) String search) {
-        List<Item> items = itemService.getItems(search);
+    public ResponseEntity<List<Item>> getAllItems() {
+        List<Item> items = itemService.getAllItems();
         return ResponseEntity.ok(items);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Item> getItemById(@PathVariable Long id) {
-        Optional<Item> item = itemService.getItemById(id);
-        return item.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping
+    public ResponseEntity<Item> updateItem(@Valid @RequestBody ItemUpdateRequestDTO requestDTO) {
+        Item updatedItem = itemService.updateItem(requestDTO);
+        return ResponseEntity.ok(updatedItem);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
+        itemService.deleteItem(id);
+        return ResponseEntity.noContent().build();
     }
 }

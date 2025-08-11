@@ -18,7 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -26,38 +26,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final String[] excludePatterns = {
             "/api/subscriber/login",
-            "/api/subscriber/signup",
+            "/api/member/signin",
+            "/api/member/signup",
             "/api/public/**",
             "/actuator/**",
             "/swagger-ui/**",
+            "/swagger.html",
             "/v3/api-docs/**",
-            "/swagger/**"
+            "/hanaweb/api-docs/**"    // <- 여기!
     };
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        System.out.println("** path = " + path);
         return Arrays.stream(excludePatterns)
                 .anyMatch(pattern -> pathMatcher.match(pattern, path));
     }
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+        @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         try {
             System.out.println("** JwtAuthenticationFilter.doFilterInternal:" + authHeader.substring(7));
             Map<String, Object> claims = JwtUtil.validateToken(authHeader.substring(7));
 
-            String email = (String) claims.get("email");
-            String nickname = (String) claims.get("nickname");
-            String authString = (String) claims.get("auth");
-            Auth auth = Auth.valueOf(authString);
+            String email = (String)claims.get("email");
+            String nickname = (String)claims.get("nickname");
+            String roleName = (String) claims.get("roleNames");
 
-            UserDto dto = new UserDto(email, "", List.of(new SimpleGrantedAuthority("ROLE_" + auth.name())), nickname, auth);
+            Auth auth = Auth.valueOf(roleName);
+
+            UserDto userDTO = new UserDto(
+                email, "",
+                Collections.singletonList(new SimpleGrantedAuthority(auth.name())),
+                nickname, auth
+            );
+
             UsernamePasswordAuthenticationToken authenticationToken = new
-                    UsernamePasswordAuthenticationToken(dto, null, dto.getAuthorities());
+                UsernamePasswordAuthenticationToken(userDTO, null, userDTO.getAuthorities());
 
             // 올바른 Authorization을 저장하여 어디서든 불러올 수 있다!
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
@@ -72,3 +79,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+
