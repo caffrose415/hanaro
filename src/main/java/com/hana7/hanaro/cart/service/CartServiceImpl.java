@@ -58,7 +58,11 @@ public class CartServiceImpl implements CartService {
 		Cart cart = getOrCreateCart(m);
 
 		Item item = itemRepository.findByIdAndDeleteAtIsNull(req.id())
-			.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
+			.orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
+
+		if (item.getStock() <= 0) {
+			throw new BusinessException(ErrorCode.INVALID_INPUT, "재고가 없습니다.");
+		}
 
 		CartItem ci = cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())
 			.orElseGet(() -> {
@@ -72,7 +76,15 @@ public class CartServiceImpl implements CartService {
 				return n;
 			});
 
-		ci.setCnt(ci.getCnt() + req.cnt());
+		int newQty = ci.getCnt() + req.cnt();
+		if (newQty > item.getStock()) {
+			throw new BusinessException(
+				ErrorCode.INVALID_INPUT,
+				"재고 부족: 요청 수량(" + newQty + ")이 재고(" + item.getStock() + ")를 초과합니다."
+			);
+		}
+
+		ci.setCnt(newQty);
 		return CartResponseDTO.from(cart);
 	}
 

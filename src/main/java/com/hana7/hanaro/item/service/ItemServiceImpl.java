@@ -22,10 +22,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
 import java.time.LocalDate;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -96,15 +100,44 @@ public class ItemServiceImpl implements ItemService {
             String uuid = UUID.randomUUID().toString().replace("-", "");
             String saveName = (ext == null || ext.isBlank()) ? uuid : (uuid + "." + ext);
 
+            // 1) 파일 내용 해시 계산 (SHA-256)
+            byte[] sha256;
             try (InputStream in = f.getInputStream()) {
-                Files.copy(in, originDir.resolve(saveName));
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) > 0) md.update(buf, 0, n);
+                sha256 = md.digest();
+            } catch (Exception e) {
+                throw new BusinessException(ErrorCode.INTERNAL_ERROR);
+            }
+            String hashHex = HexFormat.of().formatHex(sha256);
+            String originName = (ext == null || ext.isBlank()) ? hashHex : (hashHex + "." + ext);
+            Path originPath = originDir.resolve(originName);
+
+            // 2) origin에는 "처음 올라오는 해시"만 저장
+            //    동시성 대비: 임시 파일에 쓴 후 존재 안하면 원자적 move 시도
+            try {
+                if (!Files.exists(originPath)) {
+                    Path tmp = Files.createTempFile(originDir, "tmp_", null);
+                    try (InputStream in = f.getInputStream()) {
+                        Files.copy(in, tmp, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                    // 이미 다른 스레드가 같은 해시를 선점했을 수 있으므로 ATOMIC_MOVE + CREATE_NEW 느낌으로 처리
+                    try {
+                        Files.move(tmp, originPath, StandardCopyOption.ATOMIC_MOVE);
+                    } catch (FileAlreadyExistsException ignore) {
+                        Files.deleteIfExists(tmp); // 누가 먼저 저장했으면 임시파일만 버림
+                    }
+                }
             } catch (Exception e) {
                 throw new BusinessException(ErrorCode.INTERNAL_ERROR);
             }
 
+            // 3) upload에는 매번 UUID 파일로 “origin 원본에서” 복사
             Path uploadPath = uploadDir.resolve(saveName);
-            try (InputStream in = f.getInputStream()) {
-                Files.copy(in, uploadPath);
+            try {
+                Files.copy(originPath, uploadPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (Exception e) {
                 throw new BusinessException(ErrorCode.INTERNAL_ERROR);
             }
