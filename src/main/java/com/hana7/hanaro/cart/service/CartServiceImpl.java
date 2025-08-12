@@ -11,6 +11,8 @@ import com.hana7.hanaro.cart.entity.Cart;
 import com.hana7.hanaro.cart.entity.CartItem;
 import com.hana7.hanaro.cart.repository.CartItemRepository;
 import com.hana7.hanaro.cart.repository.CartRepository;
+import com.hana7.hanaro.common.exception.BusinessException;
+import com.hana7.hanaro.common.exception.ErrorCode;
 import com.hana7.hanaro.item.entity.Item;
 import com.hana7.hanaro.item.repository.ItemRepository;
 import com.hana7.hanaro.member.entity.Member;
@@ -31,7 +33,7 @@ public class CartServiceImpl implements CartService {
 	private Member resolveMember(Authentication auth) {
 		Object principal = auth.getPrincipal();
 		if (!(principal instanceof com.hana7.hanaro.member.dto.UserDTO p)) {
-			throw new IllegalStateException("인증 정보가 없습니다.");
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
 		}
 		return memberRepository.findByEmail(p.getEmail());
 	}
@@ -56,7 +58,7 @@ public class CartServiceImpl implements CartService {
 		Cart cart = getOrCreateCart(m);
 
 		Item item = itemRepository.findByIdAndDeleteAtIsNull(req.id())
-			.orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+			.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
 
 		CartItem ci = cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())
 			.orElseGet(() -> {
@@ -80,9 +82,9 @@ public class CartServiceImpl implements CartService {
 		Cart cart = getOrCreateCart(m);
 
 		CartItem ci = cartItemRepository.findById(cartItemId)
-			.orElseThrow(() -> new IllegalArgumentException("장바구니 항목이 없습니다."));
+			.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
 		if (!ci.getCart().getId().equals(cart.getId()))
-			throw new IllegalArgumentException("본인 장바구니가 아닙니다.");
+			throw new BusinessException(ErrorCode.INVALID_INPUT);
 
 		ci.setCnt(req.cnt());
 		return CartResponseDTO.from(cart);
@@ -94,9 +96,9 @@ public class CartServiceImpl implements CartService {
 		Cart cart = getOrCreateCart(m);
 
 		CartItem ci = cartItemRepository.findById(cartItemId)
-			.orElseThrow(() -> new IllegalArgumentException("장바구니 항목이 없습니다."));
+			.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
 		if (!ci.getCart().getId().equals(cart.getId()))
-			throw new IllegalArgumentException("본인 장바구니가 아닙니다.");
+			throw new BusinessException(ErrorCode.INVALID_INPUT);
 
 		cart.getCartItems().remove(ci);
 		ci.setCart(null);

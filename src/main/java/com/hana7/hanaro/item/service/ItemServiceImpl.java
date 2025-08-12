@@ -2,6 +2,8 @@ package com.hana7.hanaro.item.service;
 
 import static java.time.LocalDateTime.*;
 
+import com.hana7.hanaro.common.exception.BusinessException;
+import com.hana7.hanaro.common.exception.ErrorCode;
 import com.hana7.hanaro.item.dto.ItemCreateRequestDTO;
 import com.hana7.hanaro.item.dto.ItemCreateResponseDTO;
 import com.hana7.hanaro.item.dto.ItemSearchResponseDTO;
@@ -64,12 +66,12 @@ public class ItemServiceImpl implements ItemService {
         for (MultipartFile f : files) {
             if (f.isEmpty()) continue;
             if (f.getSize() > 512 * 1024) {
-                throw new IllegalArgumentException("파일 당 최대 512KB 초과: " + f.getOriginalFilename());
+                throw new BusinessException(ErrorCode.PAYLOAD_TOO_LARGE);
             }
             total += f.getSize();
         }
         if (total > 3L * 1024 * 1024) {
-            throw new IllegalArgumentException("총 업로드 용량 3MB 초과");
+            throw new BusinessException(ErrorCode.PAYLOAD_TOO_LARGE);
         }
 
         LocalDate today = LocalDate.now();
@@ -83,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
             Files.createDirectories(originDir);
             Files.createDirectories(uploadDir);
         } catch (Exception e) {
-            throw new RuntimeException("업로드 디렉토리 생성 실패", e);
+            throw new BusinessException(ErrorCode.INTERNAL_ERROR);
         }
 
         for (MultipartFile f : files) {
@@ -97,14 +99,14 @@ public class ItemServiceImpl implements ItemService {
             try (InputStream in = f.getInputStream()) {
                 Files.copy(in, originDir.resolve(saveName));
             } catch (Exception e) {
-                throw new RuntimeException("원본 저장 실패", e);
+                throw new BusinessException(ErrorCode.INTERNAL_ERROR);
             }
 
             Path uploadPath = uploadDir.resolve(saveName);
             try (InputStream in = f.getInputStream()) {
                 Files.copy(in, uploadPath);
             } catch (Exception e) {
-                throw new RuntimeException("업로드 저장 실패", e);
+                throw new BusinessException(ErrorCode.INTERNAL_ERROR);
             }
 
             String imgUrl = "/upload/" + y + "/" + m + "/" + d + "/" + saveName;
@@ -124,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
     public Item getItemById(Long id) {
         log.info("Service 관리자 : 아이템 id값으로 검색 id={}",id);
         return itemRepository.findByIdAndDeleteAtIsNull(id)
-            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
     }
 
     @Override
@@ -150,7 +152,7 @@ public class ItemServiceImpl implements ItemService {
     public Item updateItem(ItemUpdateRequestDTO requestDTO,long id) {
         log.info("Service 관리자 : 아이템 수정 id={}",id);
         Item item = itemRepository.findByIdAndDeleteAtIsNull(id)
-            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
 
         item.setName(requestDTO.name());
         item.setPrice(requestDTO.price());
@@ -164,7 +166,7 @@ public class ItemServiceImpl implements ItemService {
     public void deleteItem(Long id) {
         log.info("Service 관리자 : 아이템 삭제 id={}",id);
         Item item = itemRepository.findByIdAndDeleteAtIsNull(id)
-            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
         item.setDeleteAt(now());
     }
 
@@ -174,9 +176,9 @@ public class ItemServiceImpl implements ItemService {
     public void deleteImage(Long itemId, Long imageId) {
         log.info("Service 관리자 : 이미지 삭제 itemId={}, imageId={}",itemId,imageId);
         Item item = itemRepository.findByIdAndDeleteAtIsNull(itemId)
-            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
         ItemImage img = itemImageRepository.findById(imageId)
-            .orElseThrow(() -> new IllegalArgumentException("이미지를 찾을 수 없습니다."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
         if (!img.getItem().getId().equals(item.getId())) {
             throw new IllegalArgumentException("이 상품의 이미지가 아닙니다.");
         }
@@ -188,8 +190,8 @@ public class ItemServiceImpl implements ItemService {
     public Item adjustStock(Long id, int cnt) {
         log.info("Service 관리자 : 아이템 수량 조정 id={},cnt={}",id,cnt);
         Item item = itemRepository.findByIdAndDeleteAtIsNull(id)
-            .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
-        if (cnt < 0) throw new IllegalArgumentException("재고는 음수가 될 수 없습니다.");
+            .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
+        if (cnt < 0) throw new BusinessException(ErrorCode.INVALID_INPUT);
         item.setStock(cnt);
         return item;
     }

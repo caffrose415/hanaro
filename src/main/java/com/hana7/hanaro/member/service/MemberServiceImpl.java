@@ -1,5 +1,7 @@
 package com.hana7.hanaro.member.service;
 
+import com.hana7.hanaro.common.exception.BusinessException;
+import com.hana7.hanaro.common.exception.ErrorCode;
 import com.hana7.hanaro.member.dto.MemberAdminDTO;
 import com.hana7.hanaro.member.dto.SignupRequestDTO;
 import com.hana7.hanaro.member.entity.Auth;
@@ -23,7 +25,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void signup(SignupRequestDTO signupRequestDTO) {
         if (memberRepository.existsByEmail(signupRequestDTO.email())) {
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw new BusinessException(ErrorCode.DATA_INTEGRITY);
         }
 
         Member member = Member.builder()
@@ -49,7 +51,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public void softDelete(Long memberId) {
         Member m = memberRepository.findByIdAndDeleteAtIsNull(memberId)
-            .orElseThrow(() -> new IllegalArgumentException("회원이 없거나 이미 삭제되었습니다."));
+            .orElseThrow(() -> new BusinessException(ErrorCode.DATA_INTEGRITY));
         m.setDeleteAt(LocalDateTime.now());
         memberRepository.flush();
     }

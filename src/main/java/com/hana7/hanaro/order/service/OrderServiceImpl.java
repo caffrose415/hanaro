@@ -7,6 +7,8 @@ import java.util.List;
 import com.hana7.hanaro.cart.entity.Cart;
 import com.hana7.hanaro.cart.entity.CartItem;
 import com.hana7.hanaro.cart.repository.CartRepository;
+import com.hana7.hanaro.common.exception.BusinessException;
+import com.hana7.hanaro.common.exception.ErrorCode;
 import com.hana7.hanaro.item.entity.Item;
 import com.hana7.hanaro.item.repository.ItemRepository;
 import com.hana7.hanaro.member.dto.UserDTO;
@@ -50,7 +52,7 @@ public class OrderServiceImpl implements OrderService {
 	private Member resolveMember(Authentication auth) {
 		Object principal = auth.getPrincipal();
 		if (!(principal instanceof UserDTO p)) {
-			throw new IllegalStateException("인증 정보가 없습니다.");
+			throw new BusinessException(ErrorCode.UNAUTHORIZED);
 		}
 		log.info("Service 맴버 인증 정보 확인");
 
@@ -62,10 +64,10 @@ public class OrderServiceImpl implements OrderService {
 		log.info("Service 장바구니 확인후 주문 진행");
 		Member m = resolveMember(auth);
 		Cart cart = cartRepository.findByMemberId(m.getId())
-			.orElseThrow(() -> new IllegalArgumentException("장바구니가 비어있습니다."));
+			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_INTEGRITY));
 
 		if (cart.getCartItems().isEmpty()) {
-			throw new IllegalArgumentException("장바구니가 비어있습니다.");
+			throw new BusinessException(ErrorCode.DATA_INTEGRITY);
 		}
 
 
@@ -77,11 +79,11 @@ public class OrderServiceImpl implements OrderService {
 
 		for (CartItem ci : cart.getCartItems()) {
 			Item item = itemRepository.findByIdAndDeleteAtIsNull(ci.getItem().getId())
-				.orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. id=" + ci.getItem().getId()));
+				.orElseThrow(() -> new BusinessException(ErrorCode.INVALID_INPUT));
 
 
 			if (item.getStock() < ci.getCnt()) {
-				throw new IllegalArgumentException("재고 부족: " + item.getName());
+				throw new BusinessException(ErrorCode.INVALID_INPUT);
 			}
 			item.setStock(item.getStock() - ci.getCnt());
 
@@ -126,7 +128,7 @@ public class OrderServiceImpl implements OrderService {
 	public AdminOrderDetailDTO detail(Long orderId) {
 		log.info("Service 관리자 :  주문 상세 찾기");
 		Order order = orderRepository.findDetailById(orderId)
-			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+			.orElseThrow(() -> new BusinessException(ErrorCode.DATA_INTEGRITY));
 		return AdminOrderDetailDTO.from(order);
 	}
 
@@ -152,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
 		log.info("Service 사용자 : 내 주문목록 상세히 보기");
 		Member me = resolveMember(auth);
 		Order order = orderRepository.findByIdAndMemberId(orderId, me.getId())
-			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없거나 권한이 없습니다."));
+			.orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
 		return OrderResponseDTO.from(order);
 	}
 
