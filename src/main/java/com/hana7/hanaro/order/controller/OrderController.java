@@ -7,6 +7,8 @@ import com.hana7.hanaro.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/admin/orders")
 @Tag(name = "[관리자] 주문조회")
@@ -33,6 +36,7 @@ public class OrderController {
 		@RequestParam(required = false) Long memberId,
 		@RequestParam(required = false) String memberEmail
 	) {
+		log.info("Controller 관리자 주문 목록 조회 :  startDate={},endDate={},itemId={},memberId={},memberEmail={}", startDate, endDate, itemId, memberId, memberEmail);
 		return ResponseEntity.ok(service.search(startDate, endDate, itemId, memberId, memberEmail));
 	}
 
@@ -40,6 +44,7 @@ public class OrderController {
 	@GetMapping("/{orderId}")
 	@Operation(summary = "주문 상세 조회")
 	public ResponseEntity<AdminOrderDetailDTO> detail(@PathVariable Long orderId) {
+		log.info("COntroller 관리자 주문 상세 조회 : orderId={}", orderId);
 		return ResponseEntity.ok(service.detail(orderId));
 	}
 }

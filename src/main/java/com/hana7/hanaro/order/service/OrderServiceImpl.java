@@ -9,6 +9,7 @@ import com.hana7.hanaro.cart.entity.CartItem;
 import com.hana7.hanaro.cart.repository.CartRepository;
 import com.hana7.hanaro.item.entity.Item;
 import com.hana7.hanaro.item.repository.ItemRepository;
+import com.hana7.hanaro.member.dto.UserDTO;
 import com.hana7.hanaro.member.entity.Member;
 import com.hana7.hanaro.member.repository.MemberRepository;
 import com.hana7.hanaro.order.dto.AdminOrderDetailDTO;
@@ -20,6 +21,7 @@ import com.hana7.hanaro.order.entity.OrderItem;
 import com.hana7.hanaro.order.entity.OrderState;
 import com.hana7.hanaro.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -42,19 +45,21 @@ public class OrderServiceImpl implements OrderService {
 	private final ItemRepository itemRepository;
 	private final OrderRepository orderRepository;
 	private final JobLauncher jobLauncher;
-	private final Job csvJob;
 	private final Job statJob;
 
 	private Member resolveMember(Authentication auth) {
 		Object principal = auth.getPrincipal();
-		if (!(principal instanceof com.hana7.hanaro.member.dto.UserDTO p)) {
+		if (!(principal instanceof UserDTO p)) {
 			throw new IllegalStateException("인증 정보가 없습니다.");
 		}
+		log.info("Service 맴버 인증 정보 확인");
+
 		return memberRepository.findByEmail(p.getEmail());
 	}
 
 	@Override
 	public OrderResponseDTO checkout(Authentication auth) {
+		log.info("Service 장바구니 확인후 주문 진행");
 		Member m = resolveMember(auth);
 		Cart cart = cartRepository.findByMemberId(m.getId())
 			.orElseThrow(() -> new IllegalArgumentException("장바구니가 비어있습니다."));
@@ -104,6 +109,7 @@ public class OrderServiceImpl implements OrderService {
 		LocalDate startDate, LocalDate endDate,
 		Long itemId, Long memberId, String memberEmail
 	) {
+		log.info("Service 관리자 주문 검색");
 		LocalDateTime start = (startDate == null) ? null : startDate.atStartOfDay();
 		LocalDateTime end   = (endDate   == null) ? null : endDate.plusDays(1).atStartOfDay();
 
@@ -118,13 +124,15 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public AdminOrderDetailDTO detail(Long orderId) {
-		var order = orderRepository.findDetailById(orderId)
+		log.info("Service 관리자 :  주문 상세 찾기");
+		Order order = orderRepository.findDetailById(orderId)
 			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 		return AdminOrderDetailDTO.from(order);
 	}
 
 	@Override
 	public List<MyOrderSummaryDTO> list(Authentication auth, LocalDate startDate, LocalDate endDate) {
+		log.info("Service 사용자 : 내 주문목록 확인");
 		Member me = resolveMember(auth);
 
 		List<Order> orders;
@@ -141,6 +149,7 @@ public class OrderServiceImpl implements OrderService {
 
 	@Override
 	public OrderResponseDTO detail(Authentication auth, Long orderId) {
+		log.info("Service 사용자 : 내 주문목록 상세히 보기");
 		Member me = resolveMember(auth);
 		Order order = orderRepository.findByIdAndMemberId(orderId, me.getId())
 			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없거나 권한이 없습니다."));
@@ -150,6 +159,7 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	@Transactional(propagation = Propagation.NOT_SUPPORTED)
 	public BatchStatus runStatBatch() throws Exception {
+		log.info("Service 통계 배치 시작");
 		JobParameters jobParameters = new JobParametersBuilder().addLong("time", System.currentTimeMillis())
 			.addString("saledt", LocalDate.now().toString())
 			.toJobParameters();

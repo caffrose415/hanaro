@@ -7,6 +7,8 @@ import com.hana7.hanaro.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/user/orders")
 @Tag(name = "[사용자] 주문조회")
@@ -32,6 +35,7 @@ public class MyOrderController {
 		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
 		@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
 	) {
+		log.info("Controller 주문목록 불러오기 : auth={}, startDate={}, endDate={}", auth, startDate, endDate);
 		return ResponseEntity.ok(orderService.list(auth, startDate, endDate));
 	}
 
@@ -39,6 +43,7 @@ public class MyOrderController {
 	@GetMapping("/{orderId}")
 	@Operation(summary = "내 주문 상세")
 	public ResponseEntity<OrderResponseDTO> detail(Authentication auth, @PathVariable Long orderId) {
+		log.info("Controller 주문 목록 상세보기 auth ={},orderId={}", auth, orderId);
 		return ResponseEntity.ok(orderService.detail(auth, orderId));
 	}
 }

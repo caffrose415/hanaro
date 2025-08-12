@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @Tag(name="[관리자] 상품")
 @RequestMapping("/admin/items")
@@ -31,6 +34,7 @@ public class ItemAdminController {
     @Operation(summary = "아이템 등록")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ItemCreateResponseDTO> createItem(@Valid ItemCreateRequestDTO requestDTO) {
+        log.info("Controller 관리자 : 아이템 등록 requestDTO={}", requestDTO);
         ItemCreateResponseDTO created = itemService.createItemWithImages(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -39,6 +43,7 @@ public class ItemAdminController {
     @GetMapping("/{id}")
     @Operation(summary = "아이템 id로 검색")
     public ResponseEntity<Item> getItemById(@PathVariable Long id) {
+        log.info("Controller 관리자 : 아이템 id값으로 검색 id={}",id);
         Item item = itemService.getItemById(id);
         return ResponseEntity.ok(item);
     }
@@ -47,6 +52,7 @@ public class ItemAdminController {
     @GetMapping
     @Operation(summary = "아이템 전체 검색")
     public ResponseEntity<List<Item>> getAllItems() {
+        log.info("Controller 관리자 : 아이템 전체 검색");
         List<Item> items = itemService.getAllItems();
         return ResponseEntity.ok(items);
     }
@@ -55,6 +61,7 @@ public class ItemAdminController {
     @PutMapping("/{id}")
     @Operation(summary = "아이템 수정")
     public ResponseEntity<Item> updateItem(@Valid @RequestBody ItemUpdateRequestDTO requestDTO,@PathVariable Long id) {
+        log.info("Controller 관리자 : 아이템 수정 requestDTO={}, id={}", requestDTO,id);
         Item updatedItem = itemService.updateItem(requestDTO,id);
         return ResponseEntity.ok(updatedItem);
     }
@@ -63,6 +70,7 @@ public class ItemAdminController {
     @DeleteMapping("/{id}")
     @Operation(summary = "아이템 삭제")
     public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
+        log.info("Controller 관리자 : 아이템 삭제 id={}",id);
         itemService.deleteItem(id);
         return ResponseEntity.noContent().build();
     }
@@ -72,6 +80,7 @@ public class ItemAdminController {
     @DeleteMapping("/{id}/images/{imageId}")
     @Operation(summary = "아이템 이미지 삭제")
     public ResponseEntity<Void> deleteItemImage(@PathVariable Long id, @PathVariable Long imageId) {
+        log.info("Controller 관리자 : 아이템 이미지 삭제 id={},imageId={}", id, imageId);
         itemService.deleteImage(id, imageId);
         return ResponseEntity.noContent().build();
     }
@@ -81,6 +90,7 @@ public class ItemAdminController {
     @Operation(summary = "아이템 수량 수정")
     public ResponseEntity<Item> adjustStock(@PathVariable Long id,
         @Valid @RequestBody StockAdjustRequestDTO dto) {
+        log.info("Controller 관리자 : 아이템 수량 수정 id={},stockAdjustRequestDTO={}",id,dto);
         return ResponseEntity.ok(itemService.adjustStock(id, dto.cnt()));
     }
 }
