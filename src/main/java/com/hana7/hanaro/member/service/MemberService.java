@@ -5,10 +5,13 @@ import java.util.List;
 import com.hana7.hanaro.member.dto.LoginRequestDTO;
 import com.hana7.hanaro.member.dto.MemberAdminDTO;
 import com.hana7.hanaro.member.dto.SignupRequestDTO;
+import com.hana7.hanaro.member.entity.Member;
 
 public interface MemberService {
 
     void signup(SignupRequestDTO signupRequestDTO);
+
     List<MemberAdminDTO> list(boolean includeDeleted);
+
     void softDelete(Long memberId);
 }

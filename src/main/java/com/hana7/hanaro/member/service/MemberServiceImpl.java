@@ -55,4 +55,5 @@ public class MemberServiceImpl implements MemberService {
         m.setDeleteAt(LocalDateTime.now());
         memberRepository.flush();
     }
+
 }
