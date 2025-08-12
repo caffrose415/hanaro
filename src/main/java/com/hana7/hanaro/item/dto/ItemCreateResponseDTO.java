@@ -5,10 +5,6 @@ import java.util.List;
 import com.hana7.hanaro.item.entity.Item;
 import com.hana7.hanaro.item.entity.ItemImage;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-
 public record ItemCreateResponseDTO (
 	String name,
 

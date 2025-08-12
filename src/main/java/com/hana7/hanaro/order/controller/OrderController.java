@@ -7,8 +7,6 @@ import com.hana7.hanaro.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/orders")
-@Tag(name = "관리자 주문조회")
+@Tag(name = "[관리자] 주문조회")
 @RequiredArgsConstructor
 public class OrderController {
 

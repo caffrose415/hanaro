@@ -46,7 +46,7 @@ public class CartServiceImpl implements CartService {
 	public CartResponseDTO getMyCart(Authentication auth) {
 		Member m = resolveMember(auth);
 		Cart cart = cartRepository.findByMemberId(m.getId())
-			.orElseGet(() -> Cart.builder().member(m).build()); // 비어있는 장바구니 뷰
+			.orElseGet(() -> Cart.builder().member(m).build());
 		return CartResponseDTO.from(cart);
 	}
 
@@ -64,7 +64,7 @@ public class CartServiceImpl implements CartService {
 					.cart(cart)
 					.item(item)
 					.cnt(0)
-					.price(item.getPrice()) // 단가 스냅샷
+					.price(item.getPrice())
 					.build();
 				cart.getCartItems().add(n);
 				return n;
@@ -85,7 +85,6 @@ public class CartServiceImpl implements CartService {
 			throw new IllegalArgumentException("본인 장바구니가 아닙니다.");
 
 		ci.setCnt(req.cnt());
-		// 필요시 최신 단가 갱신: ci.setPrice(ci.getItem().getPrice());
 		return CartResponseDTO.from(cart);
 	}
 

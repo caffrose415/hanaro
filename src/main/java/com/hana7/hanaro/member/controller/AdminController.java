@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/admin/members")
-@Tag(name = "관리자 회원관리")
+@Tag(name = "[관리자] 회원관리")
 @RequiredArgsConstructor
 public class AdminController {
 	private final MemberService memberService;

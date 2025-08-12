@@ -1,7 +1,6 @@
 package com.hana7.hanaro.item.dto;
 
 import com.hana7.hanaro.item.entity.Item;
-import com.hana7.hanaro.item.entity.ItemImage;
 
 public record ItemSearchResponseDTO (
 	String name,

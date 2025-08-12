@@ -35,7 +35,6 @@ public class JwtUtil {
 	}
 
 	public static Map<String, Object> validateToken(String token) {
-		// Claims claim = null;
 		Map<String, Object> claim = null;
 		SecretKey key = null;
 

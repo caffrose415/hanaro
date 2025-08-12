@@ -49,7 +49,7 @@ class MemberRepositoryTest extends RepositoryTest {
     @Test
     @Order(2)
     void findByEmailTest() {
-        Member foundMember = memberRepository.findByEmail("testuser@gmail.com").orElse(null);
+        Member foundMember = memberRepository.findByEmail("testuser@gmail.com");
 
         assertThat(foundMember).isNotNull();
         assertThat(foundMember.getEmail()).isEqualTo(testMember.getEmail());

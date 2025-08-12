@@ -27,12 +27,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/api/member/signin",
             "/api/member/signup",
             "/user/items/**",
-            "/api/public/**",
             "/actuator/**",
             "/swagger-ui/**",
             "/swagger.html",
             "/v3/api-docs/**",
-            "/hanaweb/api-docs/**"    // <- 여기!
+            "/hanaweb/api-docs/**"
     };
 
     @Override

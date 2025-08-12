@@ -35,7 +35,6 @@ public class CustomSecurityConfig {
         log.info("--- securityConfig");
 
         http
-            // .httpBasic(AbstractHttpConfigurer::disable)
             .csrf(AbstractHttpConfigurer::disable)
             .cors(config -> config.configurationSource(corsConfigurationSource()))
             .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

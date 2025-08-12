@@ -3,8 +3,7 @@ package com.hana7.hanaro.order.service;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.security.core.Authentication;
 
 import com.hana7.hanaro.order.dto.AdminOrderDetailDTO;
@@ -21,4 +20,6 @@ public interface OrderService {
 	AdminOrderDetailDTO detail(Long orderId);
 	List<MyOrderSummaryDTO> list(Authentication auth, LocalDate startDate, LocalDate endDate);
 	OrderResponseDTO detail(Authentication auth, Long orderId);
+
+	public BatchStatus runStatBatch() throws Exception;
 }

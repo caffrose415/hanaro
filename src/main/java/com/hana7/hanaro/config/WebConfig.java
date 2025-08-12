@@ -9,10 +9,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-	@Value("${upload.path}") // /resources/static/upload
+	@Value("${upload.path}")
 	private String uploadBase;
 
-	@Value("${spring.servlet.multipart.location}") // /resources/static/origin
+	@Value("${spring.servlet.multipart.location}")
 	private String originBase;
 
 	@Override

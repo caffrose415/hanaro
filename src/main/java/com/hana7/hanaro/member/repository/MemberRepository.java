@@ -12,9 +12,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     boolean existsByEmail(String email);
 
-    Optional<Member> findByEmailAndDeleteAtIsNull(String email);
-
-    // 관리자 조회용
     List<Member> findByDeleteAtIsNull();
     Optional<Member> findByIdAndDeleteAtIsNull(Long id);
 }

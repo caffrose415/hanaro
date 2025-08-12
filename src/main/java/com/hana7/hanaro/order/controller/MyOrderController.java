@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/user/orders")
-@Tag(name = "사용자 주문조회")
+@Tag(name = "[사용자] 주문조회")
 @RequiredArgsConstructor
 public class MyOrderController {
 
